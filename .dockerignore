@@ -1,0 +1,11 @@
+.git
+.venv
+__pycache__
+*.pyc
+
+photowall.db
+uploads/*
+!uploads/.gitkeep
+
+test_uploads
+test_photowall.db
