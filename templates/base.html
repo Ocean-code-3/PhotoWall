@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}我的照片墙{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% if request.endpoint in ["admin_dashboard", "admin_upload"] %}
+        <header class="site-header">
+            <nav class="nav">
+                <a class="brand" href="{{ url_for('admin_dashboard') }}">管理后台</a>
+                <div class="nav-links" aria-label="管理导航">
+                    <a href="{{ url_for('admin_dashboard') }}">管理后台</a>
+                    <a href="{{ url_for('admin_upload') }}">上传照片</a>
+                    <a href="{{ url_for('gallery') }}">查看展览</a>
+                </div>
+            </nav>
+        </header>
+    {% endif %}
+
+    <main class="page">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="messages" aria-label="页面提示">
+                    {% for category, message in messages %}
+                        <p class="message message-{{ category }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

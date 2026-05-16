@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Photo - Ocean Photograph{% endblock %}
+{% block body_class %}portfolio-page portfolio-detail-page{% endblock %}
+
+{% block content %}
+<section class="portfolio-detail">
+    <a class="portfolio-back" href="{{ url_for('gallery') }}">BACK TO GALLERY</a>
+
+    <div class="portfolio-detail-image">
+        <img src="{{ url_for('uploaded_file', filename=photo['filename']) }}" alt="{{ photo['title'] }}">
+    </div>
+
+    <aside class="portfolio-detail-info">
+        <h1 class="photo-location">
+            {% if photo["location"] %}{{ photo["location"] }}{% else %}Unknown Location{% endif %}
+        </h1>
+
+        <a class="portfolio-download" href="{{ url_for('download_photo', photo_id=photo['id']) }}">DOWNLOAD IMAGE</a>
+    </aside>
+</section>
+{% endblock %}

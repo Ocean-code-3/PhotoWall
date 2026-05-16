@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}管理后台 - 我的照片墙{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Admin</p>
+    <h1>管理后台</h1>
+    <p class="intro">这里是你的工作区，可以上传照片、选择首页轮播照片，也可以删除不需要的照片。</p>
+</section>
+
+<section class="module-grid" aria-label="管理功能">
+    <article class="module-card">
+        <h2>上传照片</h2>
+        <p>把新的照片保存到 uploads 文件夹，并把标题、地点、标签等信息写入 SQLite 数据库。</p>
+        <a class="button-link" href="{{ url_for('admin_upload') }}">进入上传</a>
+    </article>
+
+    <article class="module-card">
+        <h2>当前照片</h2>
+        <p>数据库里已经记录 {{ photos|length }} 张照片，其中 {{ carousel_photos|length }} 张用于首页轮播。</p>
+        <a class="button-link button-secondary" href="{{ url_for('gallery') }}">查看展览</a>
+    </article>
+</section>
+
+<section class="panel">
+    <h2 class="section-title">当前轮播照片</h2>
+    {% if carousel_photos %}
+        <div class="admin-list">
+            {% for photo in carousel_photos %}
+                <article class="admin-list-item">
+                    <img src="{{ url_for('uploaded_file', filename=photo['filename']) }}" alt="{{ photo['title'] }}">
+                    <div class="admin-list-copy">
+                        <div class="admin-list-title-row">
+                            <h3>{{ photo["title"] }}</h3>
+                            <span class="status-pill">轮播中</span>
+                        </div>
+                        <p>
+                            {% if photo["location"] %}{{ photo["location"] }}{% else %}未填写地点{% endif %}
+                            {% if photo["shot_date"] %} · {{ photo["shot_date"] }}{% endif %}
+                        </p>
+                    </div>
+                    <div class="admin-actions">
+                        <form method="post" action="{{ url_for('admin_update_carousel', photo_id=photo['id']) }}">
+                            <input type="hidden" name="is_carousel" value="0">
+                            <button class="small-button button-secondary" type="submit">取消轮播</button>
+                        </form>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="admin-empty">
+            <p>还没有手动选择轮播照片。观众端会暂时使用最新的 2 张照片作为轮播。</p>
+        </div>
+    {% endif %}
+</section>
+
+{% if photos %}
+<section class="panel">
+    <h2 class="section-title">照片管理</h2>
+    <div class="admin-list">
+        {% for photo in photos %}
+            <article class="admin-list-item">
+                <img src="{{ url_for('uploaded_file', filename=photo['filename']) }}" alt="{{ photo['title'] }}">
+                <div class="admin-list-copy">
+                    <div class="admin-list-title-row">
+                        <h3>{{ photo["title"] }}</h3>
+                        {% if photo["is_carousel"] %}
+                            <span class="status-pill">轮播中</span>
+                        {% endif %}
+                    </div>
+                    <p>
+                        {% if photo["location"] %}{{ photo["location"] }}{% else %}未填写地点{% endif %}
+                        {% if photo["shot_date"] %} · {{ photo["shot_date"] }}{% endif %}
+                    </p>
+                    <p class="admin-filename">{{ photo["filename"] }}</p>
+                </div>
+                <div class="admin-actions">
+                    {% if photo["is_carousel"] %}
+                        <button class="small-button button-secondary" type="button" disabled>已加入轮播</button>
+                    {% else %}
+                        <form method="post" action="{{ url_for('admin_update_carousel', photo_id=photo['id']) }}">
+                            <input type="hidden" name="is_carousel" value="1">
+                            <button class="small-button" type="submit">加入轮播</button>
+                        </form>
+                    {% endif %}
+
+                    <form method="post" action="{{ url_for('admin_delete_photo', photo_id=photo['id']) }}" onsubmit="return confirm('确定要删除这张照片吗？这个操作会同时删除本地图片文件。');">
+                        <button class="small-button danger-button" type="submit">删除</button>
+                    </form>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% else %}
+<section class="empty-state">
+    <h2>还没有照片</h2>
+    <p>先上传第一张照片，后台管理列表会显示在这里。</p>
+    <a class="button-link" href="{{ url_for('admin_upload') }}">上传照片</a>
+</section>
+{% endif %}
+{% endblock %}

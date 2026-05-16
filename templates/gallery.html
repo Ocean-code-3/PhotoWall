@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery{% endblock %}
+{% block body_class %}portfolio-page carousel-page{% endblock %}
+
+{% block content %}
+<section class="gallery-masthead" aria-label="站点标题">
+    <p>Ocean Photograph</p>
+</section>
+
+{% if carousel_photos %}
+<section class="carousel-stage" data-carousel aria-label="照片轮播">
+    <div class="carousel-slides">
+        {% for photo in carousel_photos %}
+            <article class="carousel-slide{% if loop.first %} is-active{% endif %}">
+                <img src="{{ url_for('uploaded_file', filename=photo['filename']) }}" alt="{{ photo['title'] }}">
+                <a class="carousel-caption" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">light，time and memory</a>
+            </article>
+        {% endfor %}
+    </div>
+
+    <div class="carousel-dots" aria-label="轮播分页">
+        {% for photo in carousel_photos %}
+            <button class="{% if loop.first %}is-active{% endif %}" type="button" aria-label="查看第 {{ loop.index }} 张照片" data-carousel-dot="{{ loop.index0 }}"></button>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mosaic-gallery" aria-label="作品列表">
+    {% for photo in photos %}
+        <article class="mosaic-item">
+            <a class="mosaic-image" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">
+                <img src="{{ url_for('uploaded_file', filename=photo['filename']) }}" alt="{{ photo['title'] }}">
+            </a>
+        </article>
+    {% endfor %}
+</section>
+{% else %}
+<section class="portfolio-empty" aria-label="照片列表">
+    <h1>Coming Soon</h1>
+    <p>Photos will appear here after they are published from the admin side.</p>
+</section>
+{% endif %}
+{% endblock %}

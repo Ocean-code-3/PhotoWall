@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}上传照片 - 我的照片墙{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Admin Upload</p>
+    <h1>上传照片</h1>
+    <p class="intro">上传照片文件，并把标题、日期、地点、标签和描述保存到 SQLite 数据库。</p>
+</section>
+
+<section class="panel">
+    <form class="photo-form" method="post" action="{{ url_for('admin_upload') }}" enctype="multipart/form-data">
+        <label>
+            照片文件
+            <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,image/*" required>
+        </label>
+
+        <label>
+            标题
+            <input type="text" name="title" placeholder="例如：重庆夜景">
+        </label>
+
+        <label>
+            拍摄日期
+            <input type="date" name="shot_date">
+        </label>
+
+        <label>
+            拍摄地点
+            <input type="text" name="location" placeholder="例如：南滨路">
+        </label>
+
+        <label>
+            标签
+            <input type="text" name="tags" placeholder="例如：城市, 夜景, 江边">
+        </label>
+
+        <label>
+            描述
+            <textarea name="description" rows="4" placeholder="写一点这张照片背后的故事"></textarea>
+        </label>
+
+        <button type="submit">保存照片</button>
+    </form>
+</section>
+{% endblock %}
