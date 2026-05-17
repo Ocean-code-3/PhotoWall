@@ -19,6 +19,18 @@ app.secret_key = os.environ.get("SECRET_KEY", "photo-wall-dev")
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 DISPLAY_IMAGE_MAX_WIDTH = 2000
 DISPLAY_IMAGE_QUALITY = 82
+COLLECTION_DEFINITIONS = [
+    {
+        "slug": "landscape",
+        "title": "LANDSCAPE",
+        "description": "Mountains, water, weather, and the quiet distance between them.",
+    },
+    {
+        "slug": "city",
+        "title": "CITY",
+        "description": "Street corners, passing light, and small moments from daily life.",
+    },
+]
 
 
 def allowed_file(filename):
@@ -166,6 +178,39 @@ def get_selected_carousel_photos():
         ).fetchall()
 
 
+def get_collection_photos(photos, collection_index):
+    if not photos:
+        return []
+
+    grouped_photos = photos[collection_index::len(COLLECTION_DEFINITIONS)]
+    return grouped_photos if grouped_photos else photos
+
+
+def get_collections(photos=None):
+    photos = photos if photos is not None else get_photos()
+    collections = []
+
+    for index, collection in enumerate(COLLECTION_DEFINITIONS):
+        collection_photos = get_collection_photos(photos, index)
+        collections.append(
+            {
+                **collection,
+                "cover": collection_photos[0] if collection_photos else None,
+                "photos": collection_photos,
+            }
+        )
+
+    return collections
+
+
+def get_collection(slug):
+    for collection in get_collections():
+        if collection["slug"] == slug:
+            return collection
+
+    return None
+
+
 def create_photo(filename, title, description, location, shot_date, tags):
     ensure_database(import_uploads=False)
     clean_title = title.strip() if title and title.strip() else "未命名照片"
@@ -226,7 +271,13 @@ def index():
 
 @app.route("/gallery")
 def gallery():
-    return render_template("gallery.html", photos=get_photos(), carousel_photos=get_carousel_photos())
+    photos = get_photos()
+    return render_template(
+        "gallery.html",
+        photos=photos,
+        carousel_photos=get_carousel_photos(),
+        collections=get_collections(photos),
+    )
 
 
 @app.route("/gallery/photo/<int:photo_id>")
@@ -236,6 +287,15 @@ def public_photo_detail(photo_id):
         abort(404)
 
     return render_template("detail.html", photo=photo)
+
+
+@app.route("/gallery/collections/<slug>")
+def collection_detail(slug):
+    collection = get_collection(slug)
+    if collection is None:
+        abort(404)
+
+    return render_template("collection.html", collection=collection)
 
 
 @app.route("/download/<int:photo_id>")

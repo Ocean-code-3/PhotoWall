@@ -964,6 +964,135 @@ h1 {
     background: #ffffff;
 }
 
+.collections-section {
+    width: min(1220px, calc(100% - 40px));
+    margin: 96px auto 0;
+}
+
+.collections-section h2,
+.about-section h2 {
+    margin: 0 0 72px;
+    color: #000000;
+    font-size: clamp(32px, 3.4vw, 46px);
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1;
+    text-align: center;
+}
+
+.collections-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(32px, 6vw, 82px);
+}
+
+.collection-card {
+    position: relative;
+    display: grid;
+    overflow: hidden;
+    min-height: 300px;
+    color: #ffffff;
+    background: #dedbd3;
+    text-decoration: none;
+}
+
+.collection-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    transition: transform 650ms ease, filter 650ms ease;
+}
+
+.collection-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.collection-card span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    font-size: clamp(22px, 2.2vw, 31px);
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+
+.collection-card:hover img {
+    filter: saturate(0.92);
+    transform: scale(1.04);
+}
+
+.about-section {
+    width: min(980px, calc(100% - 40px));
+    margin: 108px auto 0;
+}
+
+.about-section h2 {
+    margin-bottom: 46px;
+}
+
+.about-copy {
+    width: min(680px, 100%);
+    margin: 0 auto;
+    color: #000000;
+}
+
+.about-copy p {
+    margin: 0 0 28px;
+    font-size: 17px;
+    line-height: 1.75;
+}
+
+.about-copy p:last-child {
+    margin-bottom: 0;
+}
+
+.about-name {
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.collection-hero {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 72px 0 0;
+}
+
+.collection-hero .portfolio-back {
+    display: inline-block;
+}
+
+.collection-hero h1 {
+    margin: 58px 0 0;
+    color: #000000;
+    font-size: clamp(48px, 8vw, 112px);
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 0.95;
+    text-align: center;
+}
+
+.collection-hero p {
+    width: min(560px, 100%);
+    margin: 24px auto 0;
+    color: #505050;
+    font-size: 17px;
+    line-height: 1.7;
+    text-align: center;
+}
+
+.collection-photo-grid {
+    margin-top: 72px;
+}
+
 .mosaic-gallery {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -1045,6 +1174,47 @@ h1 {
     .mosaic-gallery {
         width: min(100% - 32px, 1180px);
         margin-top: 48px;
+    }
+
+    .collections-section,
+    .about-section,
+    .collection-hero {
+        width: min(100% - 32px, 1220px);
+    }
+
+    .collections-section {
+        margin-top: 72px;
+    }
+
+    .collections-section h2,
+    .about-section h2 {
+        margin-bottom: 38px;
+        font-size: 32px;
+    }
+
+    .collections-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .collection-card {
+        min-height: 220px;
+    }
+
+    .about-section {
+        margin-top: 76px;
+    }
+
+    .about-copy p {
+        font-size: 16px;
+    }
+
+    .collection-hero {
+        padding-top: 44px;
+    }
+
+    .collection-hero h1 {
+        margin-top: 42px;
     }
 
     .mosaic-item,
