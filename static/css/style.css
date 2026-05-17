@@ -1055,11 +1055,6 @@ h1 {
     margin-bottom: 0;
 }
 
-.about-name {
-    font-size: 18px;
-    line-height: 1.5;
-}
-
 .collection-hero {
     width: min(1180px, calc(100% - 40px));
     margin: 0 auto;

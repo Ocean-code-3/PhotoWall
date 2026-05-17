@@ -26,9 +26,19 @@
     </div>
 </section>
 
+<section class="mosaic-gallery" aria-label="作品列表">
+    {% for photo in photos %}
+        <article class="mosaic-item">
+            <a class="mosaic-image" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">
+                <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
+            </a>
+        </article>
+    {% endfor %}
+</section>
+
 {% if collections %}
 <section class="collections-section" aria-label="作品集">
-    <h2>PHOTOGRAPHY</h2>
+    <h2>作品集</h2>
 
     <div class="collections-grid">
         {% for collection in collections %}
@@ -43,11 +53,9 @@
 </section>
 
 <section class="about-section" aria-label="自我介绍">
-    <h2>WHO I AM</h2>
+    <h2>关于我</h2>
 
     <div class="about-copy">
-        <p class="about-name">Ocean Photograph | 重庆摄影爱好者</p>
-
         <p>
             我是一位来自重庆的摄影爱好者，这里用来记录我看到的世界，并分享给你。<br>
             这是我的小红书账号：403610341
@@ -60,16 +68,6 @@
     </div>
 </section>
 {% endif %}
-
-<section class="mosaic-gallery" aria-label="作品列表">
-    {% for photo in photos %}
-        <article class="mosaic-item">
-            <a class="mosaic-image" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">
-                <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
-            </a>
-        </article>
-    {% endfor %}
-</section>
 {% else %}
 <section class="portfolio-empty" aria-label="照片列表">
     <h1>Coming Soon</h1>
