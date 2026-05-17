@@ -13,7 +13,7 @@
     <div class="carousel-slides">
         {% for photo in carousel_photos %}
             <article class="carousel-slide{% if loop.first %} is-active{% endif %}">
-                <img src="{{ url_for('uploaded_file', filename=photo['filename']) }}" alt="{{ photo['title'] }}">
+                <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
                 <a class="carousel-caption" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">light，time and memory</a>
             </article>
         {% endfor %}
@@ -30,7 +30,7 @@
     {% for photo in photos %}
         <article class="mosaic-item">
             <a class="mosaic-image" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">
-                <img src="{{ url_for('uploaded_file', filename=photo['filename']) }}" alt="{{ photo['title'] }}">
+                <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
             </a>
         </article>
     {% endfor %}

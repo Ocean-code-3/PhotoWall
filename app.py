@@ -5,6 +5,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from flask import abort, Flask, flash, redirect, render_template, request, send_from_directory, url_for
+from PIL import Image, ImageOps
 from werkzeug.utils import secure_filename
 
 
@@ -16,6 +17,8 @@ app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 app.secret_key = os.environ.get("SECRET_KEY", "photo-wall-dev")
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+DISPLAY_IMAGE_MAX_WIDTH = 2000
+DISPLAY_IMAGE_QUALITY = 82
 
 
 def allowed_file(filename):
@@ -24,6 +27,10 @@ def allowed_file(filename):
 
 def upload_path():
     return Path(app.config["UPLOAD_FOLDER"])
+
+
+def display_path():
+    return upload_path() / "display"
 
 
 def database_path():
@@ -44,6 +51,7 @@ def ensure_database(import_uploads=True):
             CREATE TABLE IF NOT EXISTS photos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 filename TEXT NOT NULL UNIQUE,
+                display_filename TEXT,
                 title TEXT NOT NULL,
                 description TEXT,
                 location TEXT,
@@ -56,11 +64,14 @@ def ensure_database(import_uploads=True):
         )
         columns = connection.execute("PRAGMA table_info(photos)").fetchall()
         column_names = {column["name"] for column in columns}
+        if "display_filename" not in column_names:
+            connection.execute("ALTER TABLE photos ADD COLUMN display_filename TEXT")
         if "is_carousel" not in column_names:
             connection.execute("ALTER TABLE photos ADD COLUMN is_carousel INTEGER NOT NULL DEFAULT 0")
 
     if import_uploads:
         import_existing_uploads()
+        ensure_display_images()
 
 
 def import_existing_uploads():
@@ -73,14 +84,58 @@ def import_existing_uploads():
                 continue
 
             created_at = datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="seconds")
+            display_filename = make_display_filename(path.name)
             connection.execute(
                 """
                 INSERT OR IGNORE INTO photos
-                (filename, title, description, location, shot_date, tags, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (filename, display_filename, title, description, location, shot_date, tags, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (path.name, path.stem, "", "", "", "", created_at),
+                (path.name, display_filename, path.stem, "", "", "", "", created_at),
             )
+
+
+def make_display_filename(filename):
+    return f"{Path(filename).stem}.webp"
+
+
+def create_display_image(source_filename):
+    source = upload_path() / source_filename
+    if not source.is_file():
+        return None
+
+    display_path().mkdir(parents=True, exist_ok=True)
+    display_filename = make_display_filename(source_filename)
+    target = display_path() / display_filename
+
+    if target.is_file() and target.stat().st_mtime >= source.stat().st_mtime:
+        return display_filename
+
+    with Image.open(source) as image:
+        image = ImageOps.exif_transpose(image)
+        image.thumbnail((DISPLAY_IMAGE_MAX_WIDTH, DISPLAY_IMAGE_MAX_WIDTH), Image.Resampling.LANCZOS)
+
+        if image.mode not in ("RGB", "L"):
+            image = image.convert("RGB")
+
+        image.save(target, "WEBP", quality=DISPLAY_IMAGE_QUALITY, method=6)
+
+    return display_filename
+
+
+def ensure_display_images():
+    with get_db_connection() as connection:
+        photos = connection.execute("SELECT id, filename, display_filename FROM photos").fetchall()
+        for photo in photos:
+            display_filename = photo["display_filename"] or make_display_filename(photo["filename"])
+            target = display_path() / display_filename
+            if not target.is_file():
+                display_filename = create_display_image(photo["filename"])
+            if display_filename and display_filename != photo["display_filename"]:
+                connection.execute(
+                    "UPDATE photos SET display_filename = ? WHERE id = ?",
+                    (display_filename, photo["id"]),
+                )
 
 
 def get_photos():
@@ -114,15 +169,17 @@ def get_selected_carousel_photos():
 def create_photo(filename, title, description, location, shot_date, tags):
     ensure_database(import_uploads=False)
     clean_title = title.strip() if title and title.strip() else "未命名照片"
+    display_filename = create_display_image(filename)
     with get_db_connection() as connection:
         connection.execute(
             """
             INSERT INTO photos
-            (filename, title, description, location, shot_date, tags, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            (filename, display_filename, title, description, location, shot_date, tags, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 filename,
+                display_filename,
                 clean_title,
                 description.strip(),
                 location.strip(),
@@ -150,6 +207,11 @@ def delete_photo_record(photo_id):
     photo_file = upload_path() / photo["filename"]
     if photo_file.is_file():
         photo_file.unlink()
+
+    display_filename = photo["display_filename"] or make_display_filename(photo["filename"])
+    display_file = display_path() / display_filename
+    if display_file.is_file():
+        display_file.unlink()
 
     with get_db_connection() as connection:
         connection.execute("DELETE FROM photos WHERE id = ?", (photo_id,))
@@ -259,6 +321,14 @@ def uploaded_file(filename):
         abort(404)
 
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
+
+@app.route("/display/<path:filename>")
+def display_file(filename):
+    if not filename.lower().endswith(".webp") or not (display_path() / filename).is_file():
+        abort(404)
+
+    return send_from_directory(display_path(), filename)
 
 
 if __name__ == "__main__":

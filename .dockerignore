@@ -5,6 +5,7 @@ __pycache__
 
 photowall.db
 uploads/*
+uploads/display/*
 !uploads/.gitkeep
 
 test_uploads

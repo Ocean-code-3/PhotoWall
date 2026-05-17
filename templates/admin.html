@@ -29,7 +29,7 @@
         <div class="admin-list">
             {% for photo in carousel_photos %}
                 <article class="admin-list-item">
-                    <img src="{{ url_for('uploaded_file', filename=photo['filename']) }}" alt="{{ photo['title'] }}">
+                    <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
                     <div class="admin-list-copy">
                         <div class="admin-list-title-row">
                             <h3>{{ photo["title"] }}</h3>
@@ -62,7 +62,7 @@
     <div class="admin-list">
         {% for photo in photos %}
             <article class="admin-list-item">
-                <img src="{{ url_for('uploaded_file', filename=photo['filename']) }}" alt="{{ photo['title'] }}">
+                <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
                 <div class="admin-list-copy">
                     <div class="admin-list-title-row">
                         <h3>{{ photo["title"] }}</h3>

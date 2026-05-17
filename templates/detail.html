@@ -8,7 +8,7 @@
     <a class="portfolio-back" href="{{ url_for('gallery') }}">BACK TO GALLERY</a>
 
     <div class="portfolio-detail-image">
-        <img src="{{ url_for('uploaded_file', filename=photo['filename']) }}" alt="{{ photo['title'] }}">
+        <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
     </div>
 
     <aside class="portfolio-detail-info">
