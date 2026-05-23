@@ -16,7 +16,7 @@
             {% if photo["location"] %}{{ photo["location"] }}{% else %}Unknown Location{% endif %}
         </h1>
 
-        <a class="portfolio-download" href="{{ url_for('download_photo', photo_id=photo['id']) }}">DOWNLOAD IMAGE</a>
+        <a class="portfolio-download" href="{{ url_for('uploaded_file', filename=photo['filename']) }}" download>DOWNLOAD IMAGE</a>
     </aside>
 </section>
 {% endblock %}

@@ -4,18 +4,25 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}我的照片墙{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20260517e') }}">
+    <script defer src="{{ url_for('static', filename='js/main.js', v='20260517e') }}"></script>
 </head>
 <body class="{% block body_class %}{% endblock %}">
-    {% if request.endpoint in ["admin_dashboard", "admin_upload"] %}
+    {% if request.path.startswith("/admin") %}
         <header class="site-header">
             <nav class="nav">
                 <a class="brand" href="{{ url_for('admin_dashboard') }}">管理后台</a>
                 <div class="nav-links" aria-label="管理导航">
-                    <a href="{{ url_for('admin_dashboard') }}">管理后台</a>
-                    <a href="{{ url_for('admin_upload') }}">上传照片</a>
-                    <a href="{{ url_for('gallery') }}">查看展览</a>
+                    {% if session.get("admin_authenticated") %}
+                        <a href="{{ url_for('admin_dashboard') }}">管理后台</a>
+                        <a href="{{ url_for('admin_upload') }}">上传照片</a>
+                        <a href="{{ url_for('gallery') }}">查看展览</a>
+                        <form class="logout-form" method="post" action="{{ url_for('admin_logout') }}">
+                            <button type="submit">退出登录</button>
+                        </form>
+                    {% else %}
+                        <a href="{{ url_for('gallery') }}">查看展览</a>
+                    {% endif %}
                 </div>
             </nav>
         </header>

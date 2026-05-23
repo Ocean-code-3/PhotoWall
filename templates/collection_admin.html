@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}管理作品集 - {{ collection.title }}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Collection Admin</p>
+    <h1>{{ collection.title }}</h1>
+    <p class="intro">
+        {% if collection.description %}{{ collection.description }}{% else %}在这里上传和管理这个作品集里的照片。{% endif %}
+    </p>
+    <a class="button-link button-secondary" href="{{ url_for('admin_dashboard') }}">返回管理后台</a>
+</section>
+
+<section class="panel">
+    <h2 class="section-title">编辑作品集信息</h2>
+    <form class="photo-form compact-form" method="post" action="{{ url_for('admin_update_collection', collection_id=collection.id) }}">
+        <label>
+            封面文字 / 作品集名称
+            <input type="text" name="title" value="{{ collection.title }}" required>
+        </label>
+
+        <label>
+            作品集简介
+            <textarea name="description" rows="3" placeholder="写一点这一组照片的主题">{{ collection.description }}</textarea>
+        </label>
+
+        <button type="submit">保存作品集信息</button>
+    </form>
+</section>
+
+<section class="panel">
+    <h2 class="section-title">上传到这个作品集</h2>
+    <form class="photo-form" method="post" action="{{ url_for('admin_collection_detail', collection_id=collection.id) }}" enctype="multipart/form-data" data-compress-upload>
+        <label>
+            照片文件
+            <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,image/*" required>
+        </label>
+        <p class="upload-note">大照片会先在浏览器里自动压缩到适合网页展示的尺寸，再上传保存。</p>
+        <p class="upload-status" data-upload-status></p>
+
+        <label>
+            标题
+            <input type="text" name="title" placeholder="例如：重庆夜景">
+        </label>
+
+        <label>
+            拍摄日期
+            <input type="date" name="shot_date">
+        </label>
+
+        <label>
+            拍摄地点
+            <input type="text" name="location" placeholder="例如：南滨路">
+        </label>
+
+        <div class="checkbox-group" aria-label="展示位置">
+            <label>
+                <input type="checkbox" name="is_carousel" value="1">
+                加入首页轮播区
+            </label>
+
+            <label>
+                <input type="checkbox" name="is_featured" value="1">
+                加入首页错落照片流
+            </label>
+        </div>
+
+        <label>
+            标签
+            <input type="text" name="tags" placeholder="例如：城市, 夜景, 江边">
+        </label>
+
+        <label>
+            描述
+            <textarea name="description" rows="4" placeholder="写一点这张照片背后的故事"></textarea>
+        </label>
+
+        <button type="submit">上传到作品集</button>
+    </form>
+</section>
+
+<section class="panel">
+    <h2 class="section-title">作品集照片</h2>
+    {% if collection.photos %}
+        <div class="admin-list">
+            {% for photo in collection.photos %}
+                <article class="admin-list-item">
+                    <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
+                    <div class="admin-list-copy">
+                        <div class="admin-list-title-row">
+                            <h3>{{ photo.title }}</h3>
+                            {% if photo["is_carousel"] %}
+                                <span class="status-pill">轮播中</span>
+                            {% endif %}
+                            {% if photo["is_featured"] %}
+                                <span class="status-pill">代表作</span>
+                            {% endif %}
+                        </div>
+                        <p>
+                            {% if photo["location"] %}{{ photo["location"] }}{% else %}未填写地点{% endif %}
+                            {% if photo["shot_date"] %} · {{ photo["shot_date"] }}{% endif %}
+                        </p>
+                        <p class="admin-filename">{{ photo["filename"] }}</p>
+                    </div>
+                    <div class="admin-actions">
+                        <a class="small-button button-secondary" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">查看</a>
+                        {% if photo["is_carousel"] %}
+                            <form method="post" action="{{ url_for('admin_update_carousel', photo_id=photo['id']) }}">
+                                <input type="hidden" name="is_carousel" value="0">
+                                <input type="hidden" name="next" value="{{ url_for('admin_collection_detail', collection_id=collection.id) }}">
+                                <button class="small-button button-secondary" type="submit">取消轮播</button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ url_for('admin_update_carousel', photo_id=photo['id']) }}">
+                                <input type="hidden" name="is_carousel" value="1">
+                                <input type="hidden" name="next" value="{{ url_for('admin_collection_detail', collection_id=collection.id) }}">
+                                <button class="small-button" type="submit">加入轮播</button>
+                            </form>
+                        {% endif %}
+
+                        {% if photo["is_featured"] %}
+                            <form method="post" action="{{ url_for('admin_update_featured', photo_id=photo['id']) }}">
+                                <input type="hidden" name="is_featured" value="0">
+                                <input type="hidden" name="next" value="{{ url_for('admin_collection_detail', collection_id=collection.id) }}">
+                                <button class="small-button button-secondary" type="submit">取消代表作</button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ url_for('admin_update_featured', photo_id=photo['id']) }}">
+                                <input type="hidden" name="is_featured" value="1">
+                                <input type="hidden" name="next" value="{{ url_for('admin_collection_detail', collection_id=collection.id) }}">
+                                <button class="small-button" type="submit">加入代表作</button>
+                            </form>
+                        {% endif %}
+
+                        <form method="post" action="{{ url_for('admin_delete_collection_photo', collection_id=collection.id, photo_id=photo['id']) }}" onsubmit="return confirm('确定要删除这张照片吗？这个操作会同时删除本地图片文件。');">
+                            <button class="small-button danger-button" type="submit">删除</button>
+                        </form>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="admin-empty">
+            <p>这个作品集还没有照片。先从上方上传第一张照片。</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

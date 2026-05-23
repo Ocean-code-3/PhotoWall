@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 
 photowall.db
+instance/
 uploads/*
 uploads/display/*
 !uploads/.gitkeep

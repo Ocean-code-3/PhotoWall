@@ -10,11 +10,13 @@
 </section>
 
 <section class="panel">
-    <form class="photo-form" method="post" action="{{ url_for('admin_upload') }}" enctype="multipart/form-data">
+    <form class="photo-form" method="post" action="{{ url_for('admin_upload') }}" enctype="multipart/form-data" data-compress-upload>
         <label>
             照片文件
             <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,image/*" required>
         </label>
+        <p class="upload-note">大照片会先在浏览器里自动压缩到适合网页展示的尺寸，再上传保存。</p>
+        <p class="upload-status" data-upload-status></p>
 
         <label>
             标题
@@ -30,6 +32,31 @@
             拍摄地点
             <input type="text" name="location" placeholder="例如：南滨路">
         </label>
+
+        <label>
+            所属作品集
+            <select name="collection_id" required>
+                <option value="">请选择作品集</option>
+                {% for collection in collections %}
+                    <option value="{{ collection.id }}">{{ collection.title }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        {% if not collections %}
+            <p class="upload-note">还没有作品集，请先回到管理后台创建作品集。</p>
+        {% endif %}
+
+        <div class="checkbox-group" aria-label="展示位置">
+            <label>
+                <input type="checkbox" name="is_carousel" value="1">
+                加入首页轮播区
+            </label>
+
+            <label>
+                <input type="checkbox" name="is_featured" value="1">
+                加入首页错落照片流
+            </label>
+        </div>
 
         <label>
             标签

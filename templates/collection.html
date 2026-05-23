@@ -11,9 +11,9 @@
 </section>
 
 {% if collection.photos %}
-<section class="mosaic-gallery collection-photo-grid" aria-label="{{ collection.title }} photos">
+<section class="mosaic-gallery collection-photo-grid {{ mosaic_layout_class(collection.photos) }}" aria-label="{{ collection.title }} photos">
     {% for photo in collection.photos %}
-        <article class="mosaic-item">
+        <article class="mosaic-item is-{{ photo_orientation(photo) }}">
             <a class="mosaic-image" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">
                 <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
             </a>

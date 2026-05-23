@@ -13,7 +13,7 @@
     <div class="carousel-slides">
         {% for photo in carousel_photos %}
             <article class="carousel-slide{% if loop.first %} is-active{% endif %}">
-                <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
+                <img src="{{ url_for('carousel_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
                 <a class="carousel-caption" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">light，time and memory</a>
             </article>
         {% endfor %}
@@ -25,16 +25,24 @@
         {% endfor %}
     </div>
 </section>
+{% endif %}
 
-<section class="mosaic-gallery" aria-label="作品列表">
-    {% for photo in photos %}
-        <article class="mosaic-item">
-            <a class="mosaic-image" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">
-                <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
-            </a>
-        </article>
-    {% endfor %}
-</section>
+{% if photos %}
+    <section class="mosaic-gallery {{ mosaic_layout_class(photos) }}" aria-label="精选作品列表">
+        {% for photo in photos %}
+            <article class="mosaic-item is-{{ photo_orientation(photo) }}">
+                <a class="mosaic-image" href="{{ url_for('public_photo_detail', photo_id=photo['id']) }}">
+                    <img src="{{ url_for('display_file', filename=photo['display_filename']) }}" alt="{{ photo['title'] }}">
+                </a>
+            </article>
+        {% endfor %}
+    </section>
+{% else %}
+    <section class="portfolio-empty featured-empty" aria-label="精选作品列表">
+        <h1>精选作品待添加</h1>
+        <p>在管理端把照片加入“首页错落照片流”后，它们会显示在这里。</p>
+    </section>
+{% endif %}
 
 {% if collections %}
 <section class="collections-section" aria-label="作品集">
@@ -66,12 +74,6 @@
             My Xiaohongshu account: 403610341
         </p>
     </div>
-</section>
-{% endif %}
-{% else %}
-<section class="portfolio-empty" aria-label="照片列表">
-    <h1>Coming Soon</h1>
-    <p>Photos will appear here after they are published from the admin side.</p>
 </section>
 {% endif %}
 {% endblock %}
