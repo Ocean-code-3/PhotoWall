@@ -49,15 +49,16 @@ E:\PhotoWall\.venv\Scripts\python.exe export_static.py
 E:\PhotoWall\docs
 ```
 
-GitHub Pages 可以选择从 `main` 分支的 `/docs` 目录发布。当前默认路径适配仓库页面：
+GitHub Pages 可以选择从 `main` 分支的 `/docs` 目录发布。当前默认路径适配自定义域名：
 
 ```text
-https://Ocean-code-3.github.io/PhotoWall/
+https://oceanphotography.top/
 ```
 
-如果以后绑定自定义域名并希望页面从根路径访问，可以这样导出：
+如果临时想导出 GitHub Pages 仓库路径版本，可以这样运行：
 
 ```powershell
-$env:STATIC_BASE_PATH=""
+$env:STATIC_BASE_PATH="/PhotoWall"
+$env:STATIC_CUSTOM_DOMAIN=""
 E:\PhotoWall\.venv\Scripts\python.exe export_static.py
 ```

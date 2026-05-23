@@ -14,7 +14,8 @@ from app import (
 )
 
 
-DEFAULT_BASE_PATH = "/PhotoWall"
+DEFAULT_BASE_PATH = ""
+DEFAULT_CUSTOM_DOMAIN = "oceanphotography.top"
 DEFAULT_OUTPUT_DIR = "docs"
 
 
@@ -75,7 +76,7 @@ def render_route(client, route, output_file, base_path):
     output_file.write_text(html, encoding="utf-8")
 
 
-def build_static_site(output_dir=DEFAULT_OUTPUT_DIR, base_path=DEFAULT_BASE_PATH):
+def build_static_site(output_dir=DEFAULT_OUTPUT_DIR, base_path=DEFAULT_BASE_PATH, custom_domain=DEFAULT_CUSTOM_DOMAIN):
     output_dir = Path(output_dir)
     clean_output_dir(output_dir)
 
@@ -103,6 +104,9 @@ def build_static_site(output_dir=DEFAULT_OUTPUT_DIR, base_path=DEFAULT_BASE_PATH
             render_route(client, route, output_file, base_path)
 
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
+    if custom_domain:
+        (output_dir / "CNAME").write_text(f"{custom_domain.strip()}\n", encoding="utf-8")
+
     return output_dir.resolve(), len(routes)
 
 
@@ -110,5 +114,6 @@ if __name__ == "__main__":
     target_dir, page_count = build_static_site(
         output_dir=os.environ.get("STATIC_EXPORT_DIR", DEFAULT_OUTPUT_DIR),
         base_path=os.environ.get("STATIC_BASE_PATH", DEFAULT_BASE_PATH),
+        custom_domain=os.environ.get("STATIC_CUSTOM_DOMAIN", DEFAULT_CUSTOM_DOMAIN),
     )
     print(f"Exported {page_count} pages to {target_dir}")
